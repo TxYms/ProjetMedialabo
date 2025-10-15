@@ -24,32 +24,36 @@ public class MedicalNoteService {
     private MedicalNoteDTO toDto(MedicalNote n) {
         return new MedicalNoteDTO(
             n.getId(),
-            n.getPatientId(),
-            n.getContent(),
+            n.getPatientId(),      // Long
+            n.getNote(),           // mappe vers DTO.content
             n.getCreatedAt()
         );
     }
 
-    private MedicalNote fromCreate(String patientId, String content) {
+    private MedicalNote fromCreate(Long patientId, String content) {
         MedicalNote n = new MedicalNote();
-        n.setPatientId(patientId);
-        n.setContent(content);
-        n.setCreatedAt(Instant.now());           // ← on fixe nous-mêmes la date
+        n.setPatientId(patientId);   // Long
+        n.setNote(content);          // champ "note" en base
+        n.setCreatedAt(Instant.now());
         return n;
     }
 
-    public List<MedicalNoteDTO> findByPatientId(String patientId) {
-        return repo.findByPatientId(patientId).stream().map(this::toDto).toList();
+    public List<MedicalNoteDTO> findByPatientId(Long patientId) {
+        return repo.findByPatientId(patientId)
+                   .stream()
+                   .map(this::toDto)
+                   .toList();
     }
 
-    public MedicalNoteDTO addNote(String patientId, String content) {
+    public MedicalNoteDTO addNote(Long patientId, String content) {
         MedicalNote saved = repo.save(fromCreate(patientId, content));
         return toDto(saved);
     }
 
-    public Set<String> findPatientIdsByContent(String q) {
+    // Si possible, préfère renvoyer Set<Long>.
+    public Set<Long> findPatientIdsByContent(String q) {
         return repo.findPatientIdsByContentRegex(q).stream()
-                .map(com.medialabo.repository.MedicalNoteRepository.NotePatientId::getPatientId)
+                .map(com.medialabo.repository.MedicalNoteRepository.NotePatientId::getPatientId) // Long
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }

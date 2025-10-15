@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record MedicalNoteDTO(
     String id,
-    String patientId,
+    Long patientId,
     String content,
     Instant createdAt
 ) {}

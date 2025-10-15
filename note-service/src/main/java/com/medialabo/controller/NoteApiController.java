@@ -18,21 +18,21 @@ public class NoteApiController {
 
   // Liste des notes d'un patient
   @GetMapping("/patients/{id}/notes")
-  public List<MedicalNoteDTO> notes(@PathVariable String id){
+  public List<MedicalNoteDTO> notes(@PathVariable Long id){
     return service.findByPatientId(id);
   }
 
   // Ajout d'une note
   public static class CreateNote { public String content; }
   @PostMapping("/patients/{id}/notes")
-  public ResponseEntity<Void> add(@PathVariable String id, @RequestBody CreateNote req){
+  public ResponseEntity<Void> add(@PathVariable Long id, @RequestBody CreateNote req){
     service.addNote(id, req.content);
     return ResponseEntity.ok().build();
   }
 
   // Recherche patients par contenu
   @GetMapping("/notes/search")
-  public Set<String> search(@RequestParam("q") String q){
+  public Set<Long> search(@RequestParam("q") String q){
     return service.findPatientIdsByContent(q);
   }
 }

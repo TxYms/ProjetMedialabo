@@ -68,7 +68,7 @@ services:
     container_name: note-service
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/medialabo
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/MediaLabo
       SPRING_APPLICATION_JSON: '{"server":{"port":8080}}'
     depends_on:
       mongo:

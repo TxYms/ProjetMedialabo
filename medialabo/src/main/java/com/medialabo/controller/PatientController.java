@@ -29,7 +29,7 @@ public class PatientController {
   @GetMapping public List<Patient> all() { return service.findAll(); }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Patient> one(@PathVariable String id){
+  public ResponseEntity<Patient> one(@PathVariable Long id){
     var p = service.findById(id);
     return (p==null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(p);
   }
@@ -41,7 +41,7 @@ public class PatientController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Patient> update(@PathVariable String id, @Valid @RequestBody Patient p){
+  public ResponseEntity<Patient> update(@PathVariable Long id, @Valid @RequestBody Patient p){
     if (service.findById(id)==null) return ResponseEntity.notFound().build();
     return ResponseEntity.ok(service.update(id, p));
   }

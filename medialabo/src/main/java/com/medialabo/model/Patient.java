@@ -2,39 +2,49 @@ package com.medialabo.model;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+
 
 import java.time.LocalDate;
 
-@Document(collection = "patients")
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "patients")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Patient {
 
   @Id
-  private String id;                  // <-- String pour Mongo (ObjectId)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-  @NotBlank @Size(max = 80)
+  @NotBlank
+  @Column(name = "first_name", nullable = false, length = 100)
   private String firstName;
 
-  @NotBlank @Size(max = 80)
+  @NotBlank
+  @Column(name = "last_name", nullable = false, length = 100)
   private String lastName;
 
-  @NotNull
+  @Past
+  @Column(name = "birth_date")
   private LocalDate birthDate;
 
   @NotBlank
-  @Pattern(regexp = "^(M|F)$")        // <-- correspond à tes données importées
+  @Column(name = "gender", length = 10)
   private String gender;
 
-  @Size(max = 255)
+  @NotBlank
+  @Column(name = "address", length = 255)
   private String address;
 
-  @Pattern(regexp = "^$|^[+0-9() .-]{6,20}$")
+  @NotBlank
+  @Column(name = "phone", length = 30)
   private String phone;
 
-  public String getId() { return id; }
-  public void setId(String id) { this.id = id; }
+
+  public Long getId() { return id; }
+  public void setId(Long id) { this.id = id; }
   public String getFirstName() { return firstName; }
   public void setFirstName(String firstName) { this.firstName = firstName; }
   public String getLastName() { return lastName; }

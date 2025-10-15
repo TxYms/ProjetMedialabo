@@ -17,22 +17,22 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   // API JSON -> Basic Auth (stateless)
-  @Bean
-  @Order(1)
-  SecurityFilterChain api(HttpSecurity http) throws Exception {
-    http
-      .securityMatcher("/api/**")
-      .csrf(csrf -> csrf.disable())
-      .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-      .httpBasic(Customizer.withDefaults())
-      .formLogin(form -> form.disable())
-      .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {
-        res.addHeader("WWW-Authenticate", "Basic realm=\"medilabo-notes\"");
-        res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-      }));
-    return http.build();
-  }
+	@Bean
+	@Order(1)
+	SecurityFilterChain api(HttpSecurity http) throws Exception {
+	  http
+	    .securityMatcher("/api/**", "/patients/**", "/notes/**")  // <— ajouté
+	    .csrf(csrf -> csrf.disable())
+	    .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+	    .httpBasic(Customizer.withDefaults())
+	    .formLogin(form -> form.disable())
+	    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	    .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> {
+	      res.addHeader("WWW-Authenticate", "Basic realm=\"medilabo-notes\"");
+	      res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+	    }));
+	  return http.build();
+	}
 
   // UI + actuator -> /actuator/**, /login et assets publics
   @Bean

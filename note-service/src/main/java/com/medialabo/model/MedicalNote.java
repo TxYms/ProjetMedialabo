@@ -2,8 +2,8 @@ package com.medialabo.model;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 
@@ -13,22 +13,27 @@ public class MedicalNote {
   @Id
   private String id;
 
-  @Indexed
-  private String patientId;
+  @Field("patientId")
+  private Long patientId;           // <-- Long (NumberLong en base)
 
-  private String content;
+  @Field("patient")
+  private String patient;           // <-- présent dans tes docs
 
-  @CreatedDate            // optionnel (si auditing activé)
+  @Field("note")
+  private String note;              // <-- correspond au champ "note" en base
+
+  @CreatedDate
   private Instant createdAt;
 
-  // GETTERS
+  // GETTERS/SETTERS
   public String getId() { return id; }
-  public String getPatientId() { return patientId; }
-  public String getContent() { return content; }
+  public Long getPatientId() { return patientId; }
+  public String getPatient() { return patient; }
+  public String getNote() { return note; }
   public Instant getCreatedAt() { return createdAt; }
 
-  // SETTERS
-  public void setPatientId(String patientId) { this.patientId = patientId; }
-  public void setContent(String content) { this.content = content; }
-  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; } // utile si tu le fixes côté service
+  public void setPatientId(Long patientId) { this.patientId = patientId; }
+  public void setPatient(String patient) { this.patient = patient; }
+  public void setNote(String note) { this.note = note; }
+  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }

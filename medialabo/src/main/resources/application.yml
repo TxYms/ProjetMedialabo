@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: medialabo
+  data:
+    mongodb:
+      # La vraie URI vient de l'env (SPRING_DATA_MONGODB_URI). Ceci sert de fallback local.
+      uri: mongodb://mongo:27017/MediaLabo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

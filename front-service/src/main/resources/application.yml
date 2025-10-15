@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: front-service
+  thymeleaf:
+    cache: false
+
+# Base URL de l'API (sera override par CUSTOM_API_BASE_URL du compose)
+custom:
+  api-base-url: http://api-gateway:8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

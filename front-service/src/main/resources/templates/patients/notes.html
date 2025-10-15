@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Notes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root { --bg:#f7f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --accent:#2563eb; --border:#e5e7eb; }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .container{max-width:900px;margin:32px auto;padding:0 16px}
+    .title{display:flex;align-items:center;gap:12px;margin:0 0 16px;font-weight:700;font-size:26px}
+    .nav a{padding:8px 12px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--accent);font-weight:600}
+    .nav a:hover{background:#eff6ff}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.04);padding:16px}
+    .section-title{margin:0 0 10px;font-size:18px}
+    .empty{color:var(--muted);padding:12px}
+    ol{padding-left:18px}
+    li{margin:0 0 12px}
+    pre{white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:10px}
+    .meta{color:var(--muted);font-size:14px;margin-bottom:6px}
+    hr{border:0;border-top:1px solid var(--border);margin:10px 0}
+    textarea{width:100%;min-height:140px;border:1px solid var(--border);border-radius:10px;padding:10px;font:inherit}
+    button{margin-top:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#f8fafc;cursor:pointer;font-weight:600}
+    button:hover{background:#eef2ff}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Notes du patient</h1>
+
+    <div class="nav actions" style="margin-bottom:16px">
+      <a th:href="@{/patients}">← Retour aux patients</a>
+      <a th:href="@{/patients/{id}/risk(id=${patientId})}">Voir l’évaluation du risque</a>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h2 class="section-title">Historique</h2>
+      <div th:if="${#lists.isEmpty(notes)}" class="empty">Aucune note.</div>
+      <ol th:if="${!#lists.isEmpty(notes)}">
+        <li th:each="n : ${notes}">
+          <div class="meta">
+            <strong th:text="${#temporals.format(n.createdAt, 'dd/MM/yyyy HH:mm')}">date</strong>
+            <span th:if="${n.authorUsername != null}">
+              — Auteur : <span th:text="${n.authorUsername}">user</span>
+            </span>
+          </div>
+          <pre th:text="${n.content}">contenu</pre>
+          <hr/>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Ajouter une note</h2>
+      <form th:action="@{|/patients/${patientId}/notes|}" method="post" th:object="${createRequest}">
+        <textarea th:field="*{content}" placeholder="Saisir la note..."></textarea>
+        <button type="submit">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

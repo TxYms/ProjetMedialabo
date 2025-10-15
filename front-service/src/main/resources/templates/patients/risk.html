@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Évaluation du risque</title></head>
+<body>
+<p><a th:href="@{/patients}">← Retour patients</a></p>
+<h1>Risque de diabète</h1>
+<div th:if="${report != null}">
+  <p><strong th:text="${report.firstName + ' ' + report.lastName}">Nom</strong></p>
+  <p>Âge : <span th:text="${report.age}">0</span></p>
+  <p>Sexe : <span th:text="${report.gender}">M</span></p>
+  <h2>Résultat : <span th:text="${report.riskLevel}">None</span></h2>
+</div>
+</body>
+</html>

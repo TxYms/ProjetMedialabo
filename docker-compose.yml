@@ -1,0 +1,136 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - medialabo-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: medialabo
+      MYSQL_USER: medialabo
+      MYSQL_PASSWORD: medialabo
+      MYSQL_ROOT_PASSWORD: rootroot
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - medialabo-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-prootroot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  patient-service:
+    build:
+      context: ./medialabo
+    container_name: patient-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/medialabo?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: medialabo
+      SPRING_DATASOURCE_PASSWORD: medialabo
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
+      SPRING_JPA_OPEN_IN_VIEW: "false"
+      # Désactive toute autoconfig Mongo dans patient-service
+      SPRING_AUTOCONFIGURE_EXCLUDE: >
+        org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,
+        org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration,
+        org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration,
+        org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration
+      # Aligne le port interne sur les logs
+      SPRING_APPLICATION_JSON: '{"server":{"port":8080}}'
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    networks:
+      - medialabo-net
+
+  note-service:
+    build:
+      context: ./note-service
+    container_name: note-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/medialabo
+      SPRING_APPLICATION_JSON: '{"server":{"port":8080}}'
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+    networks:
+      - medialabo-net
+
+  risk-service:
+    build:
+      context: ./risk-service
+    container_name: risk-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_APPLICATION_JSON: '{"custom":{"api-base-url":"http://api-gateway:8081"}}'
+    depends_on:
+      patient-service:
+        condition: service_started
+      note-service:
+        condition: service_started
+    ports:
+      - "8084:8080"
+    networks:
+      - medialabo-net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      patient-service:
+        condition: service_started
+      note-service:
+        condition: service_started
+      risk-service:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    networks:
+      - medialabo-net
+
+  front-service:
+    build:
+      context: ./front-service
+    container_name: front-service
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_APPLICATION_JSON: '{"custom":{"api-base-url":"http://api-gateway:8081"},"server":{"port":8080}}'
+    depends_on:
+      api-gateway:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    networks:
+      - medialabo-net
+
+volumes:
+  mongo_data:
+  mysql_data:
+
+networks:
+  medialabo-net:
